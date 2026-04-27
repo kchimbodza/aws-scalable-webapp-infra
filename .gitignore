@@ -1,0 +1,15 @@
+# Credentials — never commit
+terraform.tfvars
+
+# Terraform state — contains account IDs and resource ARNs
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+
+# Terraform internals
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+
+# OS
+.DS_Store

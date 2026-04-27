@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in your values
+db_password   = "your-secure-password"
+db_username   = "webapp_admin"
+db_name       = "webapp_db"
+ami_id        = "your-custom-ami-id"
+instance_type = "t3.micro"
