@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 370" width="960" height="370" role="img" aria-labelledby="t d">
+  <title id="t">AWS scalable web app architecture</title>
+  <desc id="d">Users on the internet reach an Application Load Balancer on HTTP port 80 in three public subnets (us-east-1a, 1b, 1c) of VPC 10.0.0.0/16. The load balancer forwards to port 8080 on EC2 t3.micro instances in an Auto Scaling Group of 1 to 3 instances, health-checked on GET /healthz. The instances talk to an RDS MySQL 8.0 db.t3.micro database on port 3306 in two private subnets; it is encrypted and not publicly accessible. CloudWatch alarms add an instance when average CPU is above 70 percent for 2 minutes and remove one when it is below 30 percent for 2 minutes. Security groups only allow internet to ALB on 80, ALB to EC2 on 8080 and EC2 to RDS on 3306.</desc>
+  <style>
+    :root { --ink:#1f2937; --sub:#57606a; --line:#d0d7de; --card:#ffffff; --on:#ea580c; --tint:#fff4ec; --group:#f6f8fa; }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink:#e6edf3; --sub:#9198a1; --line:#3d444d; --card:#161b22; --on:#fb923c; --tint:#2a1d14; --group:#0d1117; }
+    }
+    text { font-family: Inter, "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; }
+    .title { font-size:14px; font-weight:700; fill:var(--ink); text-anchor:middle; }
+    .sub   { font-size:11px; fill:var(--sub); text-anchor:middle; }
+    .gt    { font-size:11.5px; font-weight:700; fill:var(--sub); letter-spacing:.04em; }
+    .pill-t{ font-size:12px; font-weight:600; fill:var(--ink); text-anchor:middle; }
+    .lbl   { font-size:10.5px; fill:var(--sub); text-anchor:middle; }
+    .node  { fill:var(--card); stroke:var(--line); stroke-width:1.5; }
+    .hot   { fill:var(--tint); stroke:var(--on); stroke-width:1.5; }
+    .extra { fill:var(--card); stroke:var(--line); stroke-width:1.5; stroke-dasharray:5 4; }
+    .group { fill:var(--group); stroke:var(--line); stroke-width:1.5; stroke-dasharray:5 4; }
+    .sn    { fill:none; stroke:var(--line); stroke-width:1.5; stroke-dasharray:5 4; }
+    .wire  { stroke:var(--line); stroke-width:1.5; fill:none; }
+    .head  { fill:var(--line); }
+    .flow  { stroke:var(--on); stroke-width:2; fill:none; stroke-dasharray:3 11; animation: dash 1.1s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset:-14; } }
+    @media (prefers-reduced-motion: reduce) { .flow { animation:none; } }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="head" d="M0 0 L10 5 L0 10z"/></marker>
+  </defs>
+
+  <!-- VPC -->
+  <rect class="group" x="180" y="14" width="765" height="250" rx="14"/>
+  <text class="gt" x="198" y="35">VPC 10.0.0.0/16 · us-east-1</text>
+  <rect class="sn" x="196" y="48" width="460" height="202" rx="12"/>
+  <text class="gt" x="212" y="68">PUBLIC SUBNETS · 3 AZs (1a, 1b, 1c)</text>
+  <rect class="sn" x="672" y="48" width="257" height="202" rx="12"/>
+  <text class="gt" x="688" y="68">PRIVATE SUBNETS · 1a, 1b</text>
+
+  <!-- wires -->
+  <g>
+    <path class="wire" d="M150 160 H214" marker-end="url(#a)"/>        <path class="flow" d="M150 160 H212"/>
+    <path class="wire" d="M384 160 H422" marker-end="url(#a)"/>        <path class="flow" d="M384 160 H420"/>
+    <path class="wire" d="M648 160 H690" marker-end="url(#a)"/>        <path class="flow" d="M648 160 H688"/>
+    <path class="wire" d="M536 292 V236" marker-end="url(#a)"/>
+  </g>
+  <text class="lbl" x="165" y="151">:80</text>
+  <text class="lbl" x="403" y="151">:8080</text>
+  <text class="lbl" x="669" y="151">:3306</text>
+  <text class="lbl" x="575" y="276">scale ±1</text>
+
+  <!-- internet -->
+  <rect class="node" x="15" y="115" width="135" height="90" rx="12"/>
+  <text class="title" x="82.5" y="146">Internet</text>
+  <text class="sub" x="82.5" y="166">users / curl</text>
+  <text class="sub" x="82.5" y="182">/v1/user API</text>
+
+  <!-- ALB -->
+  <rect class="node" x="216" y="110" width="168" height="100" rx="12"/>
+  <text class="title" x="300" y="140">Load balancer</text>
+  <text class="sub" x="300" y="160">ALB · HTTP :80</text>
+  <text class="sub" x="300" y="176">health GET /healthz</text>
+  <text class="sub" x="300" y="192">every 30 s</text>
+
+  <!-- ASG -->
+  <rect class="node" x="424" y="80" width="224" height="156" rx="12"/>
+  <text class="title" x="536" y="102">Auto Scaling Group</text>
+  <rect class="hot"   x="440" y="111" width="194" height="28" rx="8"/><text class="pill-t" x="537" y="129">EC2 t3.micro · always on</text>
+  <rect class="extra" x="440" y="151" width="194" height="28" rx="8"/><text class="pill-t" x="537" y="169">EC2 #2 when CPU &gt; 70%</text>
+  <rect class="extra" x="440" y="191" width="194" height="28" rx="8"/><text class="pill-t" x="537" y="209">EC2 #3 (max)</text>
+
+  <!-- RDS -->
+  <rect class="node" x="692" y="110" width="221" height="100" rx="12"/>
+  <text class="title" x="802.5" y="140">RDS MySQL 8.0</text>
+  <text class="sub" x="802.5" y="160">db.t3.micro · 20 GiB encrypted</text>
+  <text class="sub" x="802.5" y="176">single-AZ · not public</text>
+  <text class="sub" x="802.5" y="192">no backups (lab setting)</text>
+
+  <!-- bottom row -->
+  <rect class="node" x="424" y="292" width="224" height="66" rx="12"/>
+  <text class="title" x="536" y="318">CloudWatch alarms</text>
+  <text class="sub" x="536" y="338">CPU &gt;70% 2 min → +1 · &lt;30% → −1</text>
+
+  <rect class="node" x="692" y="292" width="253" height="66" rx="12"/>
+  <text class="title" x="818.5" y="318">Security groups</text>
+  <text class="sub" x="818.5" y="338">internet → ALB :80 → EC2 :8080 → RDS :3306</text>
+
+  <rect class="node" x="15" y="292" width="380" height="66" rx="12"/>
+  <text class="title" x="205" y="318">Terraform (provider aws ~&gt; 5.0)</text>
+  <text class="sub" x="205" y="338">user data writes DB settings to .env, starts webapp.service</text>
+</svg>
